@@ -1,6 +1,11 @@
 <?php
 
 class Api {
+	public static function allVarToGlobalRequest() {
+		$f3 =& get_instance();
+		parse_str($f3->get('BODY'), $data);
+		$_REQUEST = array_merge($_REQUEST, $data);
+	}
 	public static function response($data, $code=200, $error=false) {
 		header('Content-type: application/json; charset=utf-8');
 		//header('HTTP/1.1 '.$code.' Not Found');
@@ -10,7 +15,7 @@ class Api {
 			),
 			'data' => $data,
 		);
-		if($error != false){
+		if($error != false) {
 			$response['meta']['error'] = $error;
 		}
 		exit(json_encode($response));
@@ -35,8 +40,8 @@ class Api {
 			$params = array($params);
 		}
 		foreach($params as $param) {
-			if(isset($_GET[$param]) === false) {
-				Api::error(400, 'Missing argument : '.implode($params, ','));
+			if(isset($_REQUEST[$param]) === false) {
+				Api::error(400, 'Missing argument : '.implode($params, ', '));
 			}
 		}
 	}

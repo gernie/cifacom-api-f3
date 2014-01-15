@@ -1,8 +1,6 @@
 <?php
 
-class user {
-	protected $f3 = null;
-	
+class User extends ORM {
 	const ROLE_ADMIN	= 200;
 	const ROLE_MEMBER	= 100;
 	const ROLE_GUEST	= 0;
@@ -14,39 +12,34 @@ class user {
 	protected $role = 0;
 	
 	public function __construct() {
-		$this->f3 =& get_instance();
+		parent::__construct();
+		$this->setTableName('user');
+		if(isset($_REQUEST['token'])) {
+			$this->loginToken($_REQUEST['token']);
+		}
 	}
 	
 	public function loginClassic($mail, $pass) {
-		return $this->loginHydrate($this->f3->db->exec('SELECT * FROM user WHERE mail = :mail AND pass = :pass LIMIT 1', array(
-			':mail' => $mail,
-			':pass' => hash('sha512', $pass),
+		$is_object = is_object($this->find(array(
+			'mail' => $mail,
+			'pass' => hash('sha512', $pass),
 		)));
+		$this->id	= (int) $this->id;
+		$this->role	= (int) $this->role;
+		return $is_object;
 	}
 	public function loginToken($token) {
-		return $this->loginHydrate($this->f3->db->exec('SELECT * FROM user WHERE token = :token LIMIT 1', array(
-			':token' => $token,
+		$is_object = is_object($this->find(array(
+			'token' => $token,
 		)));
-	}
-	protected function loginHydrate($user) {
-		if(count($user) == 0) {
-			return false;
-		} else {
-			$this->id		= (int) $user[0]['id'];
-			$this->mail		= 		$user[0]['mail'];
-			$this->pass		= 		$user[0]['pass'];
-			$this->token	= 		$user[0]['token'];
-			$this->role		= (int) $user[0]['role'];
-			return true;
-		}
+		$this->id	= (int) $this->id;
+		$this->role	= (int) $this->role;
+		return $is_object;
 	}
 	
-	public function required($role=User::ROLE_MEMBER) {
-		if(isset($_GET['token'])) {
-			$this->loginToken($_GET['token']);
-		}
+	public function required($role) {
 		if($this->getRole() < $role) {
-			Api::error(401, 'Requires role equal or more to '.$role.' (role level: '.$this->getRole().')');
+			Api::error(401, 'Requires role equal or more to '.$role.' (your role level: '.$this->getRole().')');
 		} 
 	}
 	

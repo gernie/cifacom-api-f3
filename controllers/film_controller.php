@@ -2,28 +2,41 @@
 
 class Film_controller extends Controller {
 	public function get_id() {
-		$this->f3->user->required();
+		$this->f3->user->required(User::ROLE_MEMBER);
 		Api::params('id');
-		$film = $this->f3->db->exec('SELECT * FROM film WHERE id = :id LIMIT 1', array(':id' => $_GET['id']));
-		if(count($film) == 1) {
-			Api::valid(array('film' => $user[0]));
+		$film = new Film_model;
+		$film = $film->find(array('id' => $_REQUEST['id']));
+		if($film !== false) {
+			Api::valid(array(
+				'title'	=> $film->title,
+				'desc'	=> $film->desc,
+				'img'	=> $film->img,
+			));
 		} else {
-			Api::valid(array('film' => null));
+			Api::error('404', 'The film does not exist');
 		}
 	}
 	public function get_all() {
-		$this->f3->user->required();
-		Api::valid(array('films' => $this->f3->db->exec('SELECT * FROM film')));
+		$this->f3->user->required(User::ROLE_MEMBER);
+		$film = new Film_model;
+		Api::valid($film->listAll());
 	}
 	
-	public function insert_main() {
+	public function add_main() {
 		$this->f3->user->required(User::ROLE_ADMIN);
 		Api::params(array('title', 'desc', 'img'));
-		$this->f3->db->exec('INSERT INTO film (`title`, `desc`, `img`) VALUES (:title, :desc, :img)', array(
-			':title'	=> $_GET['title'],
-			':desc'		=> $_GET['desc'],
-			':img'		=> $_GET['img'],
-		));
-		Api::valid(array('insert' => true));
+		$film = new Film_model;
+		$film->title	= $_REQUEST['title'];
+		$film->desc		= $_REQUEST['desc'];
+		$film->img		= $_REQUEST['img'];
+		$film->insert();
+		Api::valid(true);
+	}
+	
+	public function del_id() {
+		$this->f3->user->required(User::ROLE_ADMIN);
+		Api::params('id');
+		$film = new Film_model;
+		Api::valid($film->del($_REQUEST['id']));
 	}
 }
