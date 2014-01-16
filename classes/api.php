@@ -20,7 +20,14 @@ class Api {
 		}
 		exit(json_encode($response));
 	}
-	public static function valid($data) {
+	public static function valid($data, $sortable=false) {
+		if($sortable === true) {
+			$offset = (isset($_REQUEST['offset']) AND is_numeric($_REQUEST['offset']) AND $_REQUEST['offset'] >= 0)?(int)$_REQUEST['offset']:0;
+			$limit = (isset($_REQUEST['limit']) AND is_numeric($_REQUEST['limit']) AND $_REQUEST['offset'] >= 0)?(int)$_REQUEST['limit']:null;
+			if($offset !== 0 OR $limit != null) {
+				$data = array_slice($data, $offset, $limit);
+			}
+		}
 		return self::response($data, 200);
 	}
 	public static function error($code, $error=false) {

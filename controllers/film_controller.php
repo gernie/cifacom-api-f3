@@ -19,7 +19,7 @@ class Film_controller extends Controller {
 	public function get_all() {
 		$this->f3->user->required(User::ROLE_MEMBER);
 		$film = new Film_model;
-		Api::valid($film->listAll());
+		Api::valid($film->listAll(), true);
 	}
 	
 	public function add_main() {

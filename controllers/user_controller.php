@@ -51,7 +51,7 @@ class User_controller extends Controller {
 	public function get_all() {
 		$this->f3->user->required(User::ROLE_ADMIN);
 		$user = new User_model();
-		Api::valid($user->listAll());
+		Api::valid($user->listAll(), true);
 	}
 	
 	public function set_me() {
@@ -146,16 +146,16 @@ class User_controller extends Controller {
 	public function get_film_like() {
 		$this->f3->user->required(User::ROLE_MEMBER);
 		$user_film = new User_film_model;
-		Api::valid($user_film->getAll(User_film_model::TYPE_LIKE));
+		Api::valid($user_film->getAll(User_film_model::TYPE_LIKE), true);
 	}
 	public function get_film_seen() {
 		$this->f3->user->required(User::ROLE_MEMBER);
 		$user_film = new User_film_model;
-		Api::valid($user_film->getAll(User_film_model::TYPE_SEEN));
+		Api::valid($user_film->getAll(User_film_model::TYPE_SEEN), true);
 	}
 	public function get_film_wls() {
 		$this->f3->user->required(User::ROLE_MEMBER);
 		$user_film = new User_film_model;
-		Api::valid($user_film->getAll(User_film_model::TYPE_WLS));
+		Api::valid($user_film->getAll(User_film_model::TYPE_WLS), true);
 	}
 }
